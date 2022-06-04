@@ -34,7 +34,7 @@ try {
                     message.channel.send({ content: `${[args[1]]}`, embeds: [askmp], components: [buttons] });
                 }
             }
-            if (message.author.id != 982594329308700694) {
+            if (message.author.id != "982594329308700694") {
                 message.delete();
             }
         }
