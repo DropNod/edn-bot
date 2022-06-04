@@ -34,7 +34,9 @@ try {
                     message.channel.send({ content: `${[args[1]]}`, embeds: [askmp], components: [buttons] });
                 }
             }
-            message.delete();
+            if (message.author.id != 982594329308700694) {
+                message.delete();
+            }
         }
     }
 }
