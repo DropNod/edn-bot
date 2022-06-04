@@ -16,7 +16,7 @@ try {
                     const askmp = new Discord.MessageEmbed()
                         .setColor("#A8307A")
                         .setTitle("📩・Demande de MP")
-                        .addFields({name: "\u200B", value: `${message.author} souhaite vous parler en MP`})
+                        .addFields({name: "\u200B", value: `${message.author} souhaite te parler en MP`})
                         .setThumbnail(message.author.displayAvatarURL());
 
                     var buttons = new Discord.MessageActionRow()
@@ -32,10 +32,9 @@ try {
                         );
 
                     message.channel.send({ content: `${[args[1]]}`, embeds: [askmp], components: [buttons] });
-
-                    message.delete();
                 }
             }
+            message.delete();
         }
     }
 }
