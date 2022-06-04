@@ -38,7 +38,7 @@ try {
                 message.delete();
             }
         }
-        if (message.author.id != "982594329308700694") {
+        if (message.author.id != "982594329308700694" && message.channel.id === adminChannelID) {
             message.delete();
         }
     }
