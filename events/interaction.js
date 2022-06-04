@@ -1,43 +1,48 @@
 const Discord = require('discord.js');
 
-module.exports = (client, interaction) => {
+try {
+    module.exports = (client, interaction) => {
+        if(interaction.isButton()){
 
-    if(interaction.isButton()){
-        if(interaction.user === interaction.message.mentions.members.first().user) {
-            
             interaction.message.embeds.forEach((embed) => {
                 thumbnailValue = embed.thumbnail.url
+                descriptionValue = embed.description
                 embed.fields.forEach((field) => {
                     fieldValue = field.value;
                 });
             });
 
-            setTimeout(function(){ 
+            if(interaction.user.id === descriptionValue.slice(2, 20)) {
 
-                        //Demande acceptée
-                if(interaction.customId === "accept") {
-                    const askmp = new Discord.MessageEmbed()
-                        .setColor("#A8307A")
-                        .setTitle("✅・Demande acceptée")
-                        .addFields({name: "\u200B", value: `${fieldValue}`})
-                        .setThumbnail(thumbnailValue);
-                    interaction.message.edit({embeds: [askmp], components: []});
-                    interaction.reply({ content:`Vous avez accepté la demande d'ami de ${fieldValue.slice(0, 21)} ✅`, ephemeral: true});
-                    interaction.message.reply({ content:`${fieldValue.slice(0, 21)} votre demande a été acceptée ✅`});
-                }
+                setTimeout(function(){ 
 
-                //Demande refusée
-                if(interaction.customId === "deny") {
-                    const askmp = new Discord.MessageEmbed()
-                        .setColor("#A8307A")
-                        .setTitle("❌・Demande refusée")
-                        .addFields({name: "\u200B", value: `${fieldValue}`})
-                        .setThumbnail(thumbnailValue);
-                    interaction.message.edit({embeds: [askmp], components: []});
-                    interaction.reply({ content:`Vous avez refusé la demande d'ami de ${fieldValue.slice(0, 21)} ❌`, ephemeral: true});
-                    interaction.message.reply({ content:`${fieldValue.slice(0, 21)} votre demande a été refusée ❌`});
-                }
-            }, 100);
+                    //Demande acceptée
+                    if(interaction.customId === "accept") {
+                        const askmp = new Discord.MessageEmbed()
+                            .setColor("#A8307A")
+                            .setTitle("✅・Demande acceptée")
+                            .addFields({name: "\u200B", value: `${fieldValue}`})
+                            .setThumbnail(thumbnailValue)
+                            .setDescription(descriptionValue);
+                        interaction.message.edit({embeds: [askmp], components: []});
+                        interaction.reply({ content:`Vous avez accepté la demande de MP de ${fieldValue.slice(0, 21)} ✅`, ephemeral: true});
+                    }
+
+                    //Demande refusée
+                    if(interaction.customId === "deny") {
+                        const askmp = new Discord.MessageEmbed()
+                            .setColor("#A8307A")
+                            .setTitle("❌・Demande refusée")
+                            .addFields({name: "\u200B", value: `${fieldValue}`})
+                            .setThumbnail(thumbnailValue)
+                            .setDescription(descriptionValue);
+                        interaction.message.edit({embeds: [askmp], components: []});
+                        interaction.reply({ content:`Vous avez refusé la demande de MP de ${fieldValue.slice(0, 21)} ❌`, ephemeral: true});
+                    }
+                }, 100);
+            }
+            else {interaction.reply({ content:`Cette demande ne vous est pas destinée`, ephemeral: true});}
         }
     }
 }
+catch(error){console.log("Erreur interaction.js")}
