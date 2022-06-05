@@ -5,7 +5,7 @@ const { adminChannelID } = require('./identifiers.json');
 try {
     module.exports = (client, message) => {
 
-        //commande ?mp
+        //commande ?mp dans le bon channel
         if (message.content.startsWith('?mp') && message.channel.id === adminChannelID) {
             const args = message.content.slice('mp').split(/ +/);
             id = "0"
@@ -37,6 +37,11 @@ try {
             else {
                 if (message.author.id != "982594329308700694" && message.channel.id === adminChannelID) {
                     message.delete();
+                    message.channel.send({ content:`${message.author}` + " **utilisez la commande** `?mp @membre` **pour effectuer une demande**", ephemeral: true})
+                        .then(msg => {
+                            setTimeout(() => msg.delete(), 10000)
+                        })
+                        .catch();
                 }
             }
 
@@ -44,6 +49,11 @@ try {
         else {
             if (message.author.id != "982594329308700694" && message.channel.id === adminChannelID) {
                 message.delete();
+                message.channel.send({ content:`${message.author}` + " **utilisez la commande** `?mp @membre` **pour effectuer une demande**", ephemeral: true})
+                    .then(msg => {
+                        setTimeout(() => msg.delete(), 10000)
+                    })
+                    .catch();
             }
         }
     }
