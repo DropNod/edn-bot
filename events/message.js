@@ -14,6 +14,21 @@ async function sendEmbed(channel, embed, buttons, author, receiver) {
             });
     }
 }
+async function sendError(author, channel, description) {
+
+    const error = new Discord.MessageEmbed()
+        .setColor("#ab311b")
+        .setAuthor({ name: "❌・Erreur" })
+        .setDescription(`${description}`)
+
+    try {
+        await channel.send({ content: `${author}`, embeds: [error] })
+            .then(msg => {
+                setTimeout(() => msg.delete(), 10000)
+            });
+    }
+    catch (error) { }
+}
 
 module.exports = (client, message) => {
 
@@ -63,34 +78,24 @@ module.exports = (client, message) => {
 
         }
         else if (args.length === 1) {
-            message.channel.send({ content: `${message.author} **vous devez préciser le membre à qui vous voulez effectuer une demande de MP**` })
-                .then(msg => {
-                    setTimeout(() => msg.delete(), 10000)
-                })
-                .catch();
+            sendError(message.author, message.channel,`> Vous devez préciser le membre à qui vous voulez effectuer une demande de MP`);
         }
         else if (message.mentions.members.first().user.bot === true) {
-            message.channel.send({ content: `${message.author} **vous ne pouvez pas effectuer une demande de MP à un bot**` })
-                .then(msg => {
-                    setTimeout(() => msg.delete(), 10000)
-                })
-                .catch();
+            sendError(message.author, message.channel,`> Vous ne pouvez pas effectuer une demande de MP à un bot`);
         }
         else if (id === message.author.id) {
-            message.channel.send({ content: `${message.author} **vous ne pouvez pas effectuer une demande de MP à vous-même**` })
-                .then(msg => {
-                    setTimeout(() => msg.delete(), 10000)
-                })
-                .catch();
+            sendError(message.author, message.channel,`> Vous ne pouvez pas effectuer une demande de MP à vous-même`);
+        }
+        else if (id === message.author.id) {
+            sendError(message.author, message.channel,`> Vous ne pouvez pas effectuer une demande de MP à un membre possédant le rôle <@&942751346359148585>`);
+        }
+        else if (id === message.author.id) {
+            sendError(message.author, message.channel,`> Inutile d'effectuer une demande, ce membre possède le rôle <@&942751282702213120>`);
         }
         message.delete();
     }
     else if (message.author.id != "982594329308700694" && message.channel.id === mpChannelID) {
-            message.channel.send({ content:`${message.author}` + " **vous devez utiliser la commande** `?mp @membre` **pour effectuer une demande de MP**" })
-                .then(msg => {
-                    setTimeout(() => msg.delete(), 10000)
-                })
-                .catch();
-            message.delete();
+        sendError(message.author, message.channel,"> Vous devez utiliser la commande `?mp @membre` pour effectuer une demande de MP");
+        message.delete();
     }
 }
