@@ -7,9 +7,11 @@ module.exports = (client, interaction) => {
 
         if(interaction.user.id === interaction.message.content.slice(2, 20)) {
 
+            //Récupéraction des variables de l'embed
             interaction.message.embeds.forEach((embed) => {
-                thumbnailValue = embed.thumbnail.url
                 descriptionValue = embed.description
+                thumbnailValue = embed.thumbnail.url
+                footerValue = embed.footer.text
             })
 
             //Demande acceptée
@@ -19,7 +21,8 @@ module.exports = (client, interaction) => {
                 const askmp = new Discord.MessageEmbed()
                     .setColor("#A8307A")
                     .setAuthor({ name: "✅・Demande acceptée" })
-                    .setDescription(`${descriptionValue}`)
+                    .setDescription(descriptionValue)
+                    .setFooter({ text: `${footerValue}` })
                     .setThumbnail(thumbnailValue);
 
                 //Embed "Demande acceptée notif mp"
@@ -30,14 +33,10 @@ module.exports = (client, interaction) => {
 
                 //Actions
                 interaction.message.edit({embeds: [askmp], components: []});
-                interaction.reply({ content:`Vous avez accepté la demande de MP de ${descriptionValue.slice(0, 21)} ✅`, ephemeral: true});
-                client.users.fetch(descriptionValue.slice(2, 20)).then((user) => {
-                    try {
-                        user.send({ embeds: [notifmp] });	
-                    } catch (err){
-                        console.log("err");
-                    }
-                });
+
+                client.users.fetch(footerValue.slice(3)).then( user => {
+                    interaction.reply({ content:`Vous avez accepté la demande de MP de ${user}`, ephemeral: true});
+                    try { user.send({ embeds: [notifmp] }); } catch (err) { console.log(`Impossible de DM: ${user}`); }});
             }
 
             //Demande refusée
@@ -47,7 +46,8 @@ module.exports = (client, interaction) => {
                 const askmp = new Discord.MessageEmbed()
                     .setColor("#A8307A")
                     .setAuthor({ name: "❌・Demande refusée" })
-                    .setDescription(`${descriptionValue}`)
+                    .setDescription(descriptionValue)
+                    .setFooter({ text: `${footerValue}` })
                     .setThumbnail(thumbnailValue)
 
                 //Embed "Demande refusée notif mp"
@@ -58,14 +58,9 @@ module.exports = (client, interaction) => {
                 
                 //Actions
                 interaction.message.edit({embeds: [askmp], components: []});
-                interaction.reply({ content:`Vous avez refusé la demande de MP de ${descriptionValue.slice(0, 21)} ❌`, ephemeral: true});
-                client.users.fetch(descriptionValue.slice(2, 20)).then((user) => {
-                    try {
-                        user.send({ embeds: [notifmp] });	
-                    } catch (err){
-                        console.log("err");
-                    }
-                });
+                client.users.fetch(footerValue.slice(3)).then( user => {
+                    interaction.reply({ content:`Vous avez refusé la demande de MP de ${user}`, ephemeral: true});
+                    try { user.send({ embeds: [notifmp] }); } catch (err) { console.log(`Impossible de DM: ${user}`); }});
             }
         }
         else {interaction.reply({ content:`Cette demande ne vous est pas destinée`, ephemeral: true});}

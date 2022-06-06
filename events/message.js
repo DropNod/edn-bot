@@ -4,8 +4,6 @@ const { mpChannelID } = require('./identifiers.json');
 
 module.exports = (client, message) => {
 
-    console.log(message.content);
-
     //Commande ?mp
     if (message.content.startsWith('?mp') && message.channel.id === mpChannelID && message.author.id != "982594329308700694") {
 
@@ -30,8 +28,9 @@ module.exports = (client, message) => {
             const askmp = new Discord.MessageEmbed()
                 .setColor("#A8307A")
                 .setAuthor({ name: "📩・Demande de MP" })
-                .setDescription(`${message.author} **souhaite te parler en MP**\n${reason}`)
+                .setDescription(`**${message.author.username}** souhaite te parler en MP\n${reason}`)
                 .setThumbnail(message.author.displayAvatarURL())
+                .setFooter({ text:`ID: ${message.author.id}` })
 
             //Boutons "Demande de MP"
             var buttons = new Discord.MessageActionRow()
@@ -47,9 +46,20 @@ module.exports = (client, message) => {
                 );
 
             //Envoi de l'embed
-            message.channel.send({ embeds: [askmp], components: [buttons] })
+            try {
+                message.channel.send({ embeds: [askmp], components: [buttons] })
                 .then(msg => {msg.edit({ content: `${args[1]}` })})
                 .catch();
+            }
+            catch (err) {
+                console.log(`Impossible de poster le message: ${message.content}`);
+                message.channel.send({ content: `${message.author} **une erreur s'est produite veuillez réessayer**` })
+                    .then(msg => {
+                        setTimeout(() => msg.delete(), 10000)
+                    })
+                    .catch();     
+            }
+
         }
         else if (args.length === 1) {
             message.channel.send({ content: `${message.author} **vous devez préciser le membre à qui vous voulez effectuer une demande de MP**` })
