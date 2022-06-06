@@ -1,5 +1,13 @@
 const Discord = require('discord.js');
 
+async function DMmember(user, embed) {
+    try {
+        await user.send({ embeds: [embed] });
+    }
+    catch (error) {
+        (console.log(`Impossible de MP: ${user}`));
+    }
+}
 
 module.exports = (client, interaction) => {
 
@@ -36,7 +44,8 @@ module.exports = (client, interaction) => {
 
                 client.users.fetch(footerValue.slice(3)).then( user => {
                     interaction.reply({ content:`Vous avez accepté la demande de MP de ${user}`, ephemeral: true});
-                    try { user.send({ embeds: [notifmp] }); } catch (err) { console.log(`Impossible de DM: ${user}`); }});
+                    DMmember(user, notifmp);
+                });
             }
 
             //Demande refusée
@@ -60,7 +69,8 @@ module.exports = (client, interaction) => {
                 interaction.message.edit({embeds: [askmp], components: []});
                 client.users.fetch(footerValue.slice(3)).then( user => {
                     interaction.reply({ content:`Vous avez refusé la demande de MP de ${user}`, ephemeral: true});
-                    try { user.send({ embeds: [notifmp] }); } catch (err) { console.log(`Impossible de DM: ${user}`); }});
+                    DMmember(user, notifmp);
+                });
             }
         }
         else {interaction.reply({ content:`Cette demande ne vous est pas destinée`, ephemeral: true});}

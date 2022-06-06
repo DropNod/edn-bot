@@ -2,6 +2,19 @@ const Discord = require('discord.js');
 
 const { mpChannelID } = require('./identifiers.json');
 
+async function sendEmbed(channel, embed, buttons, author, receiver) {
+    try {
+        await channel.send({ embeds: [embed], components: [buttons] }).then(msg => {msg.edit({ content: `${receiver}` })});
+    }
+    catch (error) {
+        console.log(`Impossible de poster le message: ${message.content}`);
+        channel.send({ content: `${author} **une erreur s'est produite veuillez réessayer**` })
+            .then(msg => {
+                setTimeout(() => msg.delete(), 10000)
+            });
+    }
+}
+
 module.exports = (client, message) => {
 
     //Commande ?mp
@@ -46,19 +59,7 @@ module.exports = (client, message) => {
                 );
 
             //Envoi de l'embed
-            try {
-                message.channel.send({ embeds: [askmp], components: [buttons] })
-                .then(msg => {msg.edit({ content: `${args[1]}` })})
-                .catch();
-            }
-            catch (err) {
-                console.log(`Impossible de poster le message: ${message.content}`);
-                message.channel.send({ content: `${message.author} **une erreur s'est produite veuillez réessayer**` })
-                    .then(msg => {
-                        setTimeout(() => msg.delete(), 10000)
-                    })
-                    .catch();     
-            }
+            sendEmbed(message.channel, askmp, buttons, message.author, args[1]);
 
         }
         else if (args.length === 1) {
