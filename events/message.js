@@ -32,8 +32,10 @@ module.exports = (client, message) => {
 
     const guild = client.guilds.fetch('935914663856701440');
 
+    const argo = message.content.split(" ");
+
     //Commande ?mp
-    if (message.content.startsWith('?mp') && message.channel.id === mpChannelID && message.author.id != "982594329308700694") {
+    if (message.content.startsWith('?mp') && argo[1] && message.channel.id === mpChannelID && message.author.id != "982594329308700694" && !(message.content.startsWith('?mp <@&')) && argo[1].length === 21 && argo[1].startsWith("<@") && argo[1].endsWith(">")){
 
         //Récupération des arguments
         const args = message.content.slice('mp').split(/ +/);
