@@ -1,103 +1,65 @@
 const Discord = require('discord.js');
+const { botID, mpChannelID, mpClosedRoleID, mpOpenRoleID } = require('./identifiers.json');
+const prefix = '?';
 
-const { mpChannelID } = require('./identifiers.json');
-
-async function sendError(author, channel, description) {
-
-    const error = new Discord.MessageEmbed()
-        .setColor("#ab311b")
-        .setAuthor({ name: "❌・Erreur" })
-        .setDescription(`${description}`)
-
-    try {
-        await channel.send({ content: `${author}`, embeds: [error] })
-            .then(msg => {
-                setTimeout(() => msg.delete(), 20000)
-            });
+module.exports = async (client, message) => {
+    function sendError(description) {
+        const errorEmbed = new Discord.MessageEmbed()
+            .setColor('#ab311b')
+            .setAuthor({name:'❌・Erreur'})
+            .setDescription(`${description}`);
+        message.channel.send({content:`${message.author}`, embeds:[errorEmbed]}).then(msg => {setTimeout(() => msg.delete(), 20000)});
     }
-    catch (error) { }
-}
-
-async function sendEmbed(channel, embed, buttons, author, receiver) {
-    try {
-        await channel.send({ embeds: [embed], components: [buttons] }).then(msg => {msg.edit({ content: `${receiver}` })});
+    async function isInTheGuild(mention) {
+        try {
+            await message.guild.members.fetch(mention.slice(2, 20));
+            return true;
+        }
+        catch {return false}
     }
-    catch (error) {
-        console.log(`Impossible de poster le message: ${message.content}`);
-        sendError(author,channel,"Une erreur s'est produite veuillez réessayer");
-    }
-}
-
-module.exports = (client, message) => {
-
-    const guild = client.guilds.fetch('935914663856701440');
-
-    const argo = message.content.split(" ");
-
-    //Commande ?mp
-    if (message.content.startsWith('?mp') && argo[1] && message.channel.id === mpChannelID && message.author.id != "982594329308700694" && !(message.content.startsWith('?mp <@&')) && argo[1].length === 21 && argo[1].startsWith("<@") && argo[1].endsWith(">")){
-
-        //Récupération des arguments
-        const args = message.content.slice('mp').split(/ +/);
-
-        //Récupération de la varible "id"
-        id = "0"
-        try {id = message.mentions.members.first().id}
-        catch {}
-
-
-        if (args.length >= 2 && args[1].includes(id) && message.mentions.members.first().user.bot === false && id != message.author.id && !(message.mentions.members.first().roles.cache.some(role => (role.id === '942751282702213120'))) && !(message.mentions.members.first().roles.cache.some(role => (role.id === '942751346359148585')))) {
-
-            //Récupération de la variable "reason"
-            reason = `${message.content.slice(25)}`;
-            if (reason != "") {
-                reason = `> ${reason}`.replace(/\n/g, " ");
+    if (message.channel.id === mpChannelID && message.author.id != botID){
+        if (message.content.startsWith(prefix + 'mp')) {
+            const args = message.content.split(/\s+/);
+            if (args.length >= 2 && /^<@!?(\d{17,19})>$/g.test(args[1])) {
+                if (message.author.id != args[1].slice(2, 20)) {
+                    isInTheGuild = await isInTheGuild(args[1]);
+                    if (isInTheGuild === true) {
+                        if (!message.mentions.users.first().bot) {
+                            if (message.mentions.members.first().roles.cache.some(role => (role.id === mpOpenRoleID))) {
+                                sendError(`Inutile d'effectuer une demande, ce membre possède le rôle <@&${mpOpenRoleID}>`);
+                            }
+                            else if (message.mentions.members.first().roles.cache.some(role => (role.id === mpClosedRoleID))) {
+                                sendError(`Vous ne pouvez pas effectuer une demande de MP à un membre possédant le rôle <@&${mpClosedRoleID}>`);
+                            }
+                            else {
+                                let mention = args[1];
+                                if (args.length > 2) {
+                                    reason = '>';
+                                    args.splice(0, 2);
+                                    args.forEach(arg => reason = `${reason} ${arg}`);         
+                                }
+                                else {reason = ''}
+                                const askMPEmbed = new Discord.MessageEmbed()
+                                    .setColor('#a8307a')
+                                    .setAuthor({name:'📩・Demande de MP'})
+                                    .setDescription(`**${message.author.username}** souhaite te parler en MP\n${reason}`)
+                                    .setThumbnail(message.author.displayAvatarURL())
+                                    .setFooter({text:`ID: ${message.author.id}`});
+                                const embedButtons = new Discord.MessageActionRow()
+                                    .addComponents(new Discord.MessageButton().setCustomId('accept').setLabel('Accepter').setStyle('SUCCESS'))
+                                    .addComponents(new Discord.MessageButton().setCustomId('deny').setLabel('Refuser').setStyle('DANGER'));
+                                message.channel.send({embeds:[askMPEmbed], components:[embedButtons]}).then(msg => {msg.edit({content:mention})});
+                            }
+                        }
+                        else{sendError('Vous ne pouvez pas effectuer une demande de MP à un bot')}
+                    }
+                    else {sendError("Cet utilisateur n'est plus présent sur le serveur")}
+                }
+                else {sendError('Vous ne pouvez pas effectuer une demande de MP à vous-même')}
             }
-
-            //Embed "Demande de MP"
-            const askmp = new Discord.MessageEmbed()
-                .setColor("#A8307A")
-                .setAuthor({ name: "📩・Demande de MP" })
-                .setDescription(`**${message.author.username}** souhaite te parler en MP\n${reason}`)
-                .setThumbnail(message.author.displayAvatarURL())
-                .setFooter({ text:`ID: ${message.author.id}` })
-
-            //Boutons "Demande de MP"
-            var buttons = new Discord.MessageActionRow()
-                .addComponents(new Discord.MessageButton()
-                    .setCustomId("accept")
-                    .setLabel("Accepter")
-                    .setStyle("SUCCESS")
-                )
-                .addComponents(new Discord.MessageButton()
-                    .setCustomId("deny")
-                    .setLabel("Refuser")
-                    .setStyle("DANGER")
-                );
-
-            //Envoi de l'embed
-            sendEmbed(message.channel, askmp, buttons, message.author, args[1]);
-
-        }
-        else if (args.length === 1) {
-            sendError(message.author, message.channel,"Vous devez préciser le membre à qui vous voulez effectuer une demande de MP");
-        }
-        else if (message.mentions.members.first().user.bot === true) {
-            sendError(message.author, message.channel,"Vous ne pouvez pas effectuer une demande de MP à un bot");
-        }
-        else if (id === message.author.id) {
-            sendError(message.author, message.channel,"Vous ne pouvez pas effectuer une demande de MP à vous-même");
-        }
-        else if (message.mentions.members.first().roles.cache.some(role => (role.id === '942751346359148585'))) {
-            sendError(message.author, message.channel,"Vous ne pouvez pas effectuer une demande de MP à un membre possédant le rôle <@&942751346359148585>");
-        }
-        else if (message.mentions.members.first().roles.cache.some(role => (role.id === '942751282702213120'))) {
-            sendError(message.author, message.channel,"Inutile d'effectuer une demande, ce membre possède le rôle <@&942751282702213120>");
-        }
-        message.delete();
-    }
-    else if (message.author.id != "982594329308700694" && message.channel.id === mpChannelID) {
-        sendError(message.author, message.channel,"Vous devez utiliser la commande `?mp @membre` pour effectuer une demande de MP");
+            else {sendError('Vous devez utiliser la commande `?mp @membre` pour effectuer une demande de MP')}
+        } 
+        else {sendError('Vous devez utiliser la commande `?mp @membre` pour effectuer une demande de MP')}
         message.delete();
     }
 }
