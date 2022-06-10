@@ -5,7 +5,7 @@ const prefix = '?';
 module.exports = async (client, message) => {
     function sendError(description) {
         const errorEmbed = new Discord.MessageEmbed()
-            .setColor('#ab311b')
+            .setColor('#DC2845')
             .setAuthor({name:'❌・Erreur'})
             .setDescription(`${description}`);
         message.channel.send({content:`${message.author}`, embeds:[errorEmbed]}).then(msg => {setTimeout(() => msg.delete(), 20000)});
@@ -40,7 +40,7 @@ module.exports = async (client, message) => {
                                 }
                                 else {reason = ''}
                                 const askMPEmbed = new Discord.MessageEmbed()
-                                    .setColor('#a8307a')
+                                    .setColor('#2F3136')
                                     .setAuthor({name:'📩・Demande de MP'})
                                     .setDescription(`**${message.author.username}** souhaite te parler en MP\n${reason}`)
                                     .setThumbnail(message.author.displayAvatarURL())
