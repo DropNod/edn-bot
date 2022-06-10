@@ -1,5 +1,6 @@
 const Discord = require('discord.js');
 const { botID, mpChannelID, mpClosedRoleID, mpOpenRoleID } = require('./identifiers.json');
+const staffRoles = ['935914663928037539', '935914663928037538', '935914663928037537', '935914663915442234'];
 const prefix = '?';
 
 module.exports = async (client, message) => {
@@ -59,7 +60,9 @@ module.exports = async (client, message) => {
             }
             else {sendError('Vous devez utiliser la commande `?mp @membre` pour effectuer une demande de MP')}
         } 
-        else {sendError('Vous devez utiliser la commande `?mp @membre` pour effectuer une demande de MP')}
-        message.delete();
+        else if (!message.member.roles.cache.some(role => (staffRoles.includes(role.id)))) {
+            sendError('Vous devez utiliser la commande `?mp @membre` pour effectuer une demande de MP');
+            message.delete();
+        }
     }
 }
