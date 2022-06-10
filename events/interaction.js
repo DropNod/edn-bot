@@ -1,4 +1,5 @@
 const Discord = require('discord.js');
+const { mpChannelID } = require('./identifiers.json');
 
 async function DMmember(user, embed) {
     try {
@@ -11,7 +12,7 @@ async function DMmember(user, embed) {
 
 module.exports = (client, interaction) => {
 
-    if(interaction.isButton()){
+    if(interaction.channel.id === mpChannelID && interaction.isButton()){
 
         if(interaction.user.id === interaction.message.content.slice(2, 20)) {
 
