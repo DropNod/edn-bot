@@ -46,8 +46,8 @@ module.exports = async (client, message) => {
                                     .setThumbnail(message.author.displayAvatarURL())
                                     .setFooter({text:`ID: ${message.author.id}`});
                                 const embedButtons = new Discord.MessageActionRow()
-                                    .addComponents(new Discord.MessageButton().setCustomId('accept').setLabel('Accepter').setStyle('SUCCESS'))
-                                    .addComponents(new Discord.MessageButton().setCustomId('deny').setLabel('Refuser').setStyle('DANGER'));
+                                    .addComponents(new Discord.MessageButton().setCustomId('accept').setLabel('Accepter').setStyle('SECONDARY'))
+                                    .addComponents(new Discord.MessageButton().setCustomId('deny').setLabel('Refuser').setStyle('SECONDARY'));
                                 message.channel.send({embeds:[askMPEmbed], components:[embedButtons]}).then(msg => {msg.edit({content:mention})});
                             }
                         }
