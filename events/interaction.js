@@ -1,5 +1,5 @@
 const Discord = require('discord.js');
-const { mpChannelID } = require('./identifiers.json');
+const { mpChannelID, mpClosedRoleID, mpOpenRoleID } = require('./identifiers.json');
 
 module.exports = async (client, interaction) => {
     async function isInTheGuild(id) {
@@ -9,15 +9,59 @@ module.exports = async (client, interaction) => {
         }
         catch {return false}
     }
-    async function sendNotifDM (user, description) {
-        const notifDMEmbed = new Discord.MessageEmbed()
-            .setColor('#7984EB')
-            .setAuthor({name:'📣・Notification'})
+    function sendError(description) {
+        const errorEmbed = new Discord.MessageEmbed()
+            .setColor('#DC2845')
+            .setAuthor({name:'❌・Erreur'})
             .setDescription(description);
-        try {await user.send({embeds:[notifDMEmbed]})}
-        catch {}
+        interaction.reply({embeds:[errorEmbed], ephemeral:true});
     }
-    if(interaction.channel.id === mpChannelID && interaction.isButton()){
+    if (interaction.isCommand()) {
+        if (interaction.commandName === 'mp') {
+            if (interaction.channel.id === mpChannelID) {
+                commandUser = interaction.options.getUser('membre');
+                if (interaction.options.getString('message') !== null) {
+                    commandMessage = '> ' + interaction.options.getString('message')
+                }
+                else {commandMessage = ''}
+                if (interaction.user !== commandUser) {
+                    if (!commandUser.bot) {
+                        commandMember = await interaction.guild.members.fetch(commandUser.id);
+                        if (commandMember.roles.cache.some(role => (role.id === mpOpenRoleID))) {
+                            sendError(`Inutile d'effectuer une demande, ce membre possède le rôle <@&${mpOpenRoleID}>`);
+                        }
+                        else if (commandMember.roles.cache.some(role => (role.id === mpClosedRoleID))) {
+                            sendError(`Vous ne pouvez pas effectuer une demande de MP à un membre possédant le rôle <@&${mpClosedRoleID}>`);
+                        }
+                        else {
+                            const askMPEmbed = new Discord.MessageEmbed()
+                                .setColor('#2F3136')
+                                .setAuthor({name:'📩・Demande de MP'})
+                                .setDescription(`**${interaction.user.username}** souhaite te parler en MP\n${commandMessage}`)
+                                .setThumbnail(interaction.user.displayAvatarURL())
+                                .setFooter({text:`ID: ${interaction.user.id}`});
+                            const embedButtons = new Discord.MessageActionRow()
+                                .addComponents(new Discord.MessageButton().setCustomId('accept').setLabel('Accepter').setStyle('SECONDARY'))
+                                .addComponents(new Discord.MessageButton().setCustomId('deny').setLabel('Refuser').setStyle('SECONDARY'));
+                            interaction.reply({content:commandUser.toString(), embeds:[askMPEmbed], components:[embedButtons]});
+                        }
+                    }
+                    else{sendError('Vous ne pouvez pas effectuer une demande de MP à un bot')}
+                }
+                else {sendError('Vous ne pouvez pas effectuer une demande de MP à vous-même')}
+            }
+            else {sendError('Vous ne pouvez pas utiliser cette commande dans ce salon')}
+        }
+    }
+    if (interaction.channel.id === mpChannelID && interaction.isButton()) {
+        async function sendNotifDM (user, description) {
+            const notifDMEmbed = new Discord.MessageEmbed()
+                .setColor('#7984EB')
+                .setAuthor({name:'📣・Notification'})
+                .setDescription(description);
+            try {await user.send({embeds:[notifDMEmbed]})}
+            catch {}
+        }
         if(interaction.user.id === interaction.message.content.slice(2, 20)) {
             description = interaction.message.embeds[0].description;
             thumbnail = interaction.message.embeds[0].thumbnail.url;
