@@ -8,6 +8,6 @@ const askDMCommand = new SlashCommandBuilder()
 module.exports = (client) => {
     console.log('Launched !');
     client.user.setStatus('available');
-    client.user.setActivity('v1.04');
+    client.user.setActivity('v1.05');
     client.application.commands.create(askDMCommand);
 }
