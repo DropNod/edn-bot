@@ -1,7 +1,11 @@
 const Discord = require('discord.js');
-const { mpChannelID, mpClosedRoleID, mpOpenRoleID } = require('./identifiers.json');
+const { RandomPHUB } = require('discord-phub');
+const { mpChannelID, nsfwChannelID, mpClosedRoleID, mpOpenRoleID } = require('./identifiers.json');
+const nsfw = new RandomPHUB(unique = true);
 
 module.exports = async (client, interaction) => {
+
+    //Fonctions
     async function isInTheGuild(id) {
         try {
             await interaction.guild.members.fetch(id).then(u => user = u);
@@ -16,6 +20,17 @@ module.exports = async (client, interaction) => {
             .setDescription(description);
         interaction.reply({embeds:[errorEmbed], ephemeral:true});
     }
+    async function getImage(category = nsfw.getRandomCategory()) {
+        try {
+            types = ['jpeg', 'jpg', 'png', 'gif'];
+            image = undefined;
+            while (image === undefined) {image = await nsfw.getRandomInCategory(category, types[Math.floor(Math.random()*types.length)]).url}
+            return image;
+        }
+        catch {return('error')}
+      }
+
+    // Commandes
     if (interaction.isCommand()) {
         if (interaction.commandName === 'mp') {
             if (interaction.channel.id === mpChannelID) {
@@ -52,7 +67,32 @@ module.exports = async (client, interaction) => {
             }
             else {sendError('Vous ne pouvez pas utiliser cette commande dans ce salon')}
         }
+
+        //Commande nsfw
+        else if (interaction.commandName === 'nsfw') {
+            if (interaction.channel.id === nsfwChannelID) {
+                category = interaction.options.getString('catégorie');
+                if (nsfw.categories.includes(category) || category === null) {
+                    image = await getImage(category);
+                    if (image !== 'error') {
+                        if (category === null) {category = ''}
+                        else {category = `**Catégorie:** ${category.charAt(0).toUpperCase() + category.slice(1)}`}
+                        const nsfwEmbed = new Discord.MessageEmbed()
+                            .setColor('#7984EB')
+                            .setAuthor({name:`・Réclamé par ${interaction.user.username}`, iconURL:interaction.user.displayAvatarURL()})
+                            .setDescription(category)
+                            .setImage(image);
+                        interaction.reply({embeds:[nsfwEmbed]});
+                    }
+                    else {sendError("Une erreur s'est produite veuillez réessayer")}
+                }
+                else {sendError("La catégorie que vous avez mentionné n'existe pas")}
+            }
+            else {sendError('Vous ne pouvez pas utiliser cette commande dans ce salon')}
+        }
     }
+
+    //Boutons
     if (interaction.channel.id === mpChannelID && interaction.isButton()) {
         async function sendNotifDM (user, description) {
             const notifDMEmbed = new Discord.MessageEmbed()
