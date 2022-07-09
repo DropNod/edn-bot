@@ -11,7 +11,7 @@ const nsfwImageCommand = new SlashCommandBuilder()
 module.exports = (client) => {
     console.log('Launched !');
     client.user.setStatus('available');
-    client.user.setActivity('v1.06');
+    client.user.setActivity('v1.07');
     client.application.commands.create(askDMCommand);
     client.application.commands.create(nsfwImageCommand);
 }
