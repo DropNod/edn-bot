@@ -17,7 +17,6 @@ module.exports = async (client, message) => {
     }
     if(message.content === '$v' || message.content.startsWith('$v ') || message.content.startsWith('$vote')) {
         await message.guild.roles.fetch();
-        console.log('vote');
         const voteRole = await message.guild.roles.cache.find(role => role.name === '🤝 ~ A voté');
         message.member.roles.add(voteRole);
     }
